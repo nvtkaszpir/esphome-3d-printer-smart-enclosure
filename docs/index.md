@@ -27,6 +27,13 @@ Phase 1:
 
 ### Todo
 
+### General
+
+- TODO: migrate to LVGL swiping widgets
+
+- TODO: LCD backlight based on ambient light and printer printing status? would require light sensor
+  or activate via ToF is someone is near the printer, can be issue with the doors of the cabinet, though
+
 #### Control power of the printer and lights
 
 - TODO: add power/light control in LVGL (those are devices from HA, not directly attached)
@@ -49,8 +56,3 @@ Phase 1:
 
 - for knowing how much filament you have left on the spool so you can decide what to print without
   the need to install a new spool, later on to integrate with [filament usage](https://github.com/nvtkaszpir/3d-print/tree/main/filament-usage)
-
-#### Other
-
-- TODO: LCD backlight based on ambient light and printer printing status? would require light sensor
-  or activate via ToF is someone is near the printer, can be issue with the doors of the cabinet, though
