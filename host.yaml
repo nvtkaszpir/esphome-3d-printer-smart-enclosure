@@ -1,0 +1,539 @@
+# usb-c ed97e4
+# # binary fan esperanza cyclone
+# MAC ..:..:..:ED:97:E4
+# 08:D1:F9 ED97E4
+substitutions:
+  device_name: esp32-host
+  domain: !secret DOMAIN
+
+esphome:
+  name: sdl
+
+# notice that host platform does not need wifi module
+host:
+  mac_address: "06:35:69:ab:f6:79"
+
+
+# Enable logging
+logger:
+  # baud_rate: 0 # disable sending to firt uart device
+  logs:
+    component: ERROR
+
+
+# Enable Home Assistant API
+api:
+  password: ""
+  # reboot_timeout: 0s # disable reboot if not connected to HA
+
+
+text_sensor:
+  - platform: version
+    name: "ESPHome Version ${device_name}"
+
+  - platform: version
+    name: "ESPHome Version ${device_name}"
+
+button:
+  - platform: restart
+    name: "${device_name} Restart"
+
+
+# modules
+sensor:
+  - platform: uptime
+    id: socket_uptime
+    name: "Uptime"
+    icon: mdi:clock-outline
+    update_interval: 60s
+
+
+  - platform: homeassistant
+    id: current_temperature
+    entity_id: sensor.esp32_devkit_v4_9e8360_temperature
+
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: temperature_value
+            text:
+              format: "%.1f°"
+              args:
+                - x
+        - lvgl.indicator.update:
+            id: temperature_needle
+            # LVGL for indicator does not process floats, so we multiply it and will then adjust LVGL range 10x
+            value: !lambda return x * 10;
+
+  - platform: homeassistant
+    id: current_humidity
+    entity_id: sensor.esp32_devkit_v4_9e8360_humidity
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: humidity_value
+            text:
+              format: "%.0f%%"
+              args:
+                - id(current_humidity).state
+        - lvgl.indicator.update:
+            id: humidity_needle
+            value: !lambda return id(current_humidity).state;
+
+
+  - platform: homeassistant
+    id: particulate_1um
+    entity_id: sensor.particulate_matter_1_0um_concentration
+    on_value:
+      then:
+        - lvgl.arc.update:
+            id: particulate_1um_value
+            value: "!lambda return id(particulate_1um).state;"
+
+  - platform: homeassistant
+    id: particulate_2_5um
+    entity_id: sensor.particulate_matter_2_5um_concentration
+    on_value:
+      then:
+        - lvgl.arc.update:
+            id: particulate_2_5um_value
+            value: "!lambda return id(particulate_2_5um).state;"
+
+  - platform: homeassistant
+    id: particulate_10um
+    entity_id: sensor.particulate_matter_10_0um_concentration
+    on_value:
+      then:
+        # - lvgl.label.update:
+        #     id: particulate_10um_value
+        #     text:
+        #       format: "%.0f%%"
+        #       args:
+        #         - id(particulate_10um).state
+        - lvgl.arc.update:
+            id: particulate_10um_value
+            value: "!lambda return id(particulate_10um).state;"
+
+  - platform: combination
+    id: particulate_combination
+    type: linear
+    name: "Particulate"
+    # TODO: do something more compucationally meaningful?
+    # https://airly.org/en/air-quality-index-caqi-and-aqi-methods-of-calculation/
+    sources:
+      - source: particulate_1um
+        coeffecient: 2.2
+      - source: particulate_2_5um
+        coeffecient: 1.8
+      - source: particulate_10um
+        coeffecient: 1.0
+    on_value:
+      - if:
+          condition:
+            lambda: |-
+              return x > 0.0;
+          then:
+            - lvgl.label.update:
+                id: particulate_value
+                text: "SUPER"
+                text_color: 0x00FF00
+
+      - if:
+          condition:
+            lambda: |-
+              return x > 200.0;
+          then:
+            - logger.log:
+                format: "AIR %.0f GOOD"
+                args:
+                  - 'id(particulate_combination).state'
+            - lvgl.label.update:
+                id: particulate_value
+                text: "GOOD"
+                text_color: 0x33cc33
+
+      - if:
+          condition:
+            lambda: |-
+              return x > 300.0;
+          then:
+            - logger.log:
+                format: "AIR %.0f FAIR"
+                args:
+                  - 'id(particulate_combination).state'
+            - lvgl.label.update:
+                id: particulate_value
+                text: "FAIR"
+                text_color: 0xffff66
+
+      - if:
+          condition:
+            lambda: |-
+              return x > 500.0;
+          then:
+            - logger.log:
+                format: "AIR %.0f BAD"
+                args:
+                  - 'id(particulate_combination).state'
+            - lvgl.label.update:
+                id: particulate_value
+                text: "BAD"
+                text_color: 0xff9900
+                # TODO: set icon to mdi:biohazard
+
+      - if:
+          condition:
+            lambda: |-
+              return x > 1000.0;
+          then:
+            - logger.log:
+                format: "AIR %.0f HAZARD"
+                args:
+                  - 'id(particulate_combination).state'
+            - lvgl.label.update:
+                id: particulate_value
+                text: "HAZARD"
+                text_color: 0xFF0000
+                # TODO: set icon to mdi:skull-scan-outline
+
+
+# TODO:
+# display brightness based on the ambient light or TOF
+# spool weight?
+# fan speed mdi:turbine or mdi:fan
+# filter usage (fan time * fan speed)
+
+
+font:
+  # gfonts://family[@weight]
+  - file: "gfonts://Roboto"
+    id: roboto
+    # http://commondatastorage.googleapis.com/androiddevelopers/design/Roboto_Specimen_Book_20131031.pdf
+    glyphs: '!"%()*+,-_.:?{|}°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/&ĄĆĘŁŃÓŚŻŹąćęłńóśżź'
+    size: 24
+    # 16 fits %Y-%m-%d %H:%M
+
+  # gfonts://family[@weight]
+  - file: "gfonts://Roboto"
+    id: roboto_18
+    # http://commondatastorage.googleapis.com/androiddevelopers/design/Roboto_Specimen_Book_20131031.pdf
+    # glyphs: '!"%()*+,-_.:?{|}°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/&ĄĆĘŁŃÓŚŻŹąćęłńóśżź'
+    glyphs: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/' # just temperature/humidity
+    size: 18
+    # 16 fits %Y-%m-%d %H:%M
+    bpp: 4
+
+  - file: "gfonts://Roboto"
+    id: roboto_38
+    # glyphs: '!"%()*+,-_.:?{|}°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/&ĄĆĘŁŃÓŚŻŹąćęłńóśżź'
+    glyphs: '%.°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/' # just temperature/humidity
+    size: 38
+    bpp: 4
+
+
+display:
+  - platform: sdl
+    auto_clear_enabled: false # required fo sdl
+    dimensions:
+      height: 240
+      width: 240
+
+# For example cycle through pages on a timer
+interval:
+  - interval: 3s
+    then:
+      - lvgl.page.next:
+          animation: NONE
+          time: 0ms
+
+image:
+  - file: mdi:thermometer-lines
+    id: icon_thermometer
+    resize: 48x48
+  - file: mdi:water-percent
+    id: icon_humidity
+    resize: 48x48
+  - file: mdi:lungs # mdi:spray, mdi:weather-dust mdi:smoking mdi:smoke
+    id: icon_particulate
+    resize: 48x48
+
+lvgl:
+  log_level: INFO
+  color_depth: 16
+  bg_color: 0x000000
+  align: center
+  buffer_size: 25% # set it low for non PSRAM devices, ushc as 25%
+
+  pages:
+    - id: page_pmma_a
+      widgets:
+
+        # green arc
+        - arc:
+            id: particulate_10um_value
+            align: center
+            arc_rounded: true
+            arc_color: 0x222222
+            bg_color: 0x222222
+            text_color: 0x999999
+            arc_width: 8
+            min_value: 0
+            max_value: 300
+            adjustable: false
+            value: 100
+            width: 100%
+            height: 100%
+            indicator:
+              arc_color: 0x04ff00
+
+        # yellow arc
+        - arc:
+            id: particulate_2_5um_value
+            align: center
+            arc_rounded: true
+            arc_color: 0x333333
+            bg_color: 0x333333
+            text_color: 0x999999
+            arc_width: 8
+            min_value: 0
+            max_value: 300
+            adjustable: false
+            value: 200
+            width: 85%
+            height: 85%
+            indicator:
+              arc_color: 0xffae00
+
+        # red arc
+        - arc:
+            id: particulate_1um_value
+            align: center
+            arc_rounded: true
+            arc_color: 0x444444
+            bg_color: 0x444444
+            text_color: 0x999999
+            arc_width: 8
+            min_value: 0
+            max_value: 300
+            adjustable: false
+            value: 300
+            width: 70%
+            height: 70%
+            indicator:
+              arc_color: 0xff0000
+
+        # label at the bottom center
+        - image:
+            src: icon_particulate
+            align: center
+            image_recolor: 0x999999
+            image_recolor_opa: 100% #opacity defaults to 0% = must set this for recolor to take effect
+            y: +20
+        - label:
+            id: particulate_label
+            text_font: roboto_18
+            align: center
+            # text_color: 0x336699
+            text_color: 0x999999
+            bg_opa: TRANSP
+            y: +60
+            text: "AIR"
+        # label at the bottom center
+        - label:
+            id: particulate_value
+            text_font: roboto_38
+            align: center
+            # text_color: 0x336699
+            text_color: 0x999999
+            bg_opa: TRANSP
+            y: +90
+            text: "INIT"
+
+
+    - id: page_temp
+      widgets:
+        - meter: # https://esphome.io/components/lvgl/widgets#meter
+            height: 240
+            width: 240
+            align: center
+            text_font: montserrat_14
+            bg_opa: TRANSP
+            text_color: 0x999999
+            border_width: 0
+            pad_all: 8
+
+            scales:
+              # scale for needle
+              - range_from: 100 # scale for needle value /10
+                range_to: 400 # scale for needle value /10
+                angle_range: 270
+                rotation: 135
+                indicators:
+                  - line:
+                      id: temperature_needle
+                      width: 4
+                      color: 0xFFB000
+                      r_mod: -20 # shorten the needle by %
+                  - tick_style:
+                      start_value: 10
+                      end_value: 15
+                      color_start: 0x2196F3
+                      color_end: 0x2196F3
+                      width: 0
+                      local: true
+
+              # scale for the value labels
+              - range_from: 10 # scale for needle value /10
+                range_to: 40 # scale for needle value /10
+                angle_range: 270
+                rotation: 135
+                ticks:
+                  width: 2
+                  count: 31
+                  length: 10
+                  color: 0x999999
+                  major:
+                    stride: 5
+                    width: 4
+                    length: 15
+                    color: 0xEEEEEE
+                    label_gap: 16
+                indicators:
+                  # blue segment
+                  - arc:
+                      color: 0x2196F3
+                      width: 3
+                      start_value: 10
+                      end_value: 15
+                  - tick_style:
+                      start_value: 10
+                      end_value: 15
+                      color_start: 0x2196F3
+                      color_end: 0x2196F3
+                      width: 0
+                      local: true
+
+                  # red segment
+                  - arc:
+                      color: 0xF44336
+                      width: 3
+                      start_value: 30
+                      end_value: 40
+                  - tick_style:
+                      start_value: 30
+                      end_value: 40
+                      color_start: 0xF44336
+                      color_end: 0xF44336
+                      width: 0
+                      local: true
+
+        # label at the bottom center
+        - image:
+            src: icon_thermometer
+            align: center
+            image_recolor: 0x999999
+            image_recolor_opa: 100% #opacity defaults to 0% = must set this for recolor to take effect
+            y: +20
+        - label:
+            id: temperature_label
+            text_font: roboto_18
+            align: center
+            # text_color: 0x336699
+            text_color: 0x999999
+            bg_opa: TRANSP
+            y: +60
+            text: "TEMP"
+        # label at the bottom center
+        - label:
+            id: temperature_value
+            text_font: roboto_38
+            align: center
+            text_color: 0x999999
+            bg_opa: TRANSP
+            y: +90
+            text: "INIT"
+
+    - id: page_humidity
+      widgets:
+
+        - meter: # https://esphome.io/components/lvgl/widgets#meter
+            height: 240
+            width: 240
+            align: center
+            text_font: montserrat_14
+            bg_opa: TRANSP
+            text_color: 0x999999
+            border_width: 0
+            pad_all: 8
+
+            scales:
+              - range_from: 0
+                range_to: 100
+                angle_range: 270
+                rotation: 135
+                ticks:
+                  width: 2
+                  count: 21
+                  length: 10
+                  color: 0x999999
+                  major:
+                    stride: 2
+                    width: 4
+                    length: 15
+                    color: 0xEEEEEE
+                    label_gap: 16
+                indicators:
+                  - line:
+                      id: humidity_needle
+                      width: 4
+                      color: 0x00ffc3
+                      r_mod: -20 # shorten the needle by %
+
+                  # green segment
+                  - arc:
+                      color: 0x04ff00
+                      width: 8
+                      start_value: 0
+                      end_value: 30
+                      opa: 60%
+
+                  # yellow segment
+                  - arc:
+                      color: 0xffae00
+                      width: 8
+                      start_value: 30
+                      end_value: 60
+                      opa: 60%
+
+                  # red segment
+                  - arc:
+                      color: 0xff0000
+                      width: 8
+                      start_value: 60
+                      end_value: 100
+                      opa: 70%
+
+        # label at the bottom center
+        - image:
+            src: icon_humidity
+            align: center
+            image_recolor: 0x999999
+            image_recolor_opa: 100% #opacity defaults to 0% = must set this for recolor to take effect
+            y: +20
+        - label:
+            id: humidity_label
+            text_font: roboto_18
+            align: center
+            text_color: 0x999999
+            bg_opa: TRANSP
+            y: +60
+            text: "HUMIDITY"
+        # label at the bottom center
+        - label:
+            id: humidity_value
+            text_font: roboto_38
+            align: center
+            text_color: 0x999999
+            bg_opa: TRANSP
+            y: +90
+            text: "INIT"
