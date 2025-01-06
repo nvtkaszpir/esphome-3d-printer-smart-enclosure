@@ -3,7 +3,7 @@
 This is a 3d printer enclosure controlling system using esp32 devices using
 [esphome](https://esphome.io/) via [HomeAssistant](https://www.home-assistant.io/).
 
-TODO: add image of the LCD controler
+![preview](./docs/static/lcd_display-fs8.png)
 
 ## Why
 
@@ -68,11 +68,15 @@ Example:
 
 ## Code
 
-For local development see[host.yaml](./host.yaml) # TODO: host.yaml has very old code for different display, update it
+For local development see[host.yaml](./host.yaml)
 For real device see [esp32-c-ed97e4.yaml](./esp32-c-ed97e4.yaml)
 
 ## Todo
 
-TODO: actuall BOM
+TODO: actual BOM
 TODO: docs redesign for gh-pages
 TODO: gh-pages automation
+TODO: display brightness based on the ambient light or TOF
+TODO: spool weight?
+TODO: fan speed mdi:turbine or mdi:fan
+TODO: filter usage (fan time * fan speed)
