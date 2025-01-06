@@ -87,7 +87,7 @@ spi:
   mosi_pin: GPIO23 # TX
   miso_pin: GPIO19 # RX
 
-# TODO: fix pinout to avoid esphome warning about using strap pins
+# TODO: fix pinout to avoid esphome warning about using strap pins, for now it works
 output:
   - id: lcd_brightness
     platform: ledc

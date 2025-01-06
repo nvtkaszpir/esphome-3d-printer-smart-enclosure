@@ -124,6 +124,9 @@ sensor:
                 id: particulate_value
                 text: "SUPER"
                 text_color: 0x00FF00
+            - lvgl.image.update:
+                id: particulate_icon
+                src: icon_particulate
 
       - if:
           condition:
@@ -138,6 +141,9 @@ sensor:
                 id: particulate_value
                 text: "GOOD"
                 text_color: 0x33cc33
+            - lvgl.image.update:
+                id: particulate_icon
+                src: icon_particulate
 
       - if:
           condition:
@@ -152,6 +158,9 @@ sensor:
                 id: particulate_value
                 text: "FAIR"
                 text_color: 0xffff66
+            - lvgl.image.update:
+                id: particulate_icon
+                src: icon_particulate
 
       - if:
           condition:
@@ -166,7 +175,9 @@ sensor:
                 id: particulate_value
                 text: "BAD"
                 text_color: 0xff9900
-                # TODO: set icon to mdi:biohazard
+            - lvgl.image.update:
+                id: particulate_icon
+                src: icon_biohazard
 
       - if:
           condition:
@@ -181,7 +192,9 @@ sensor:
                 id: particulate_value
                 text: "HAZARD"
                 text_color: 0xFF0000
-                # TODO: set icon to mdi:skull-scan-outline
+            - lvgl.image.update:
+                id: particulate_icon
+                src: icon_skull
 
 
 font:
@@ -220,12 +233,21 @@ image:
   - file: mdi:lungs # mdi:spray, mdi:weather-dust mdi:smoking mdi:smoke
     id: icon_particulate
     resize: 48x48
+  - file: mdi:skull-scan-outline
+    id: icon_skull
+    resize: 48x48
+  - file: mdi:biohazard
+    id: icon_biohazard
+    resize: 48x48
+  - file: mdi:fan
+    id: icon_fan
+    resize: 48x48
 
 touchscreen:
   platform: sdl
   id: touch_surface
 
-  # FIXME: host touch scripts
+  # FIXME: host touch scripts per device
   # on_touch:
   #   - script.stop: backlight_timer
   #   - script.execute: backlight_timer
@@ -318,6 +340,7 @@ lvgl:
 
         # label at the bottom center
         - image:
+            id: particulate_icon
             src: icon_particulate
             align: center
             image_recolor: 0x999999
