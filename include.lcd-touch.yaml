@@ -31,8 +31,19 @@ button:
   - platform: restart
     name: "${device_name} Restart"
 
+globals:
+  - id: backlight_percent
+    type: int
+    restore_value: no
+    initial_value: '50'
+  # minimum LCD backlight, set to 0 to have it off
+  - id: backlight_percent_minimum
+    type: int
+    restore_value: no
+    initial_value: '0'
 
 # modules
+
 sensor:
   - platform: uptime
     id: socket_uptime
@@ -114,6 +125,7 @@ sensor:
         coeffecient: 1.8
       - source: particulate_10um
         coeffecient: 1.0
+
     on_value:
       - if:
           condition:
@@ -127,6 +139,10 @@ sensor:
             - lvgl.image.update:
                 id: particulate_icon
                 src: icon_particulate
+            # comment out if you want screen to be off, oterwise it will be off and back on again on sensor update
+            # - globals.set:
+            #     id: backlight_percent
+            #     value: "10"
 
       - if:
           condition:
@@ -144,6 +160,9 @@ sensor:
             - lvgl.image.update:
                 id: particulate_icon
                 src: icon_particulate
+            - globals.set:
+                id: backlight_percent
+                value: "20"
 
       - if:
           condition:
@@ -161,6 +180,9 @@ sensor:
             - lvgl.image.update:
                 id: particulate_icon
                 src: icon_particulate
+            - globals.set:
+                id: backlight_percent
+                value: "60"
 
       - if:
           condition:
@@ -178,6 +200,9 @@ sensor:
             - lvgl.image.update:
                 id: particulate_icon
                 src: icon_biohazard
+            - globals.set:
+                id: backlight_percent
+                value: "80"
 
       - if:
           condition:
@@ -195,6 +220,9 @@ sensor:
             - lvgl.image.update:
                 id: particulate_icon
                 src: icon_skull
+            - globals.set:
+                id: backlight_percent
+                value: "100"
 
 
 font:
@@ -247,13 +275,33 @@ touchscreen:
   platform: sdl
   id: touch_surface
 
-  # FIXME: host touch scripts per device
-  # on_touch:
-  #   - script.stop: backlight_timer
-  #   - script.execute: backlight_timer
+  on_touch:
+    - logger.log: display touched
+    - if:
+        condition:
+          lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+        then:
+          - lvgl.page.show: page_pmma_a
+          - lvgl.page.previous: # need to show default page and 'go back' so on release we show next
+
+    - globals.set:
+        id: backlight_percent
+        value: '80'
+    - lvgl.resume:
+    - light.turn_on:
+        id: backlight
+        brightness: !lambda return (id(backlight_percent) / 100.0);
 
   on_release:
-    - lvgl.page.next:
+    # do not change the page if screen was dark
+    - if:
+        condition:
+          lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+        then:
+          - lvgl.page.show: page_pmma_a
+        else:
+          - lvgl.page.next:
+
 
 lvgl:
   log_level: INFO
@@ -266,19 +314,23 @@ lvgl:
     # switch to specific page after 10s of inactivity
     - timeout: 10s
       then:
-        - logger.log: idle timeout 1
+        - logger.log: idle timeout short, switching to default page
         - lvgl.page.show: page_pmma_a
 
-    # switch off display on long inactivity
-    # TODO: fix if doing backlight based on air quality level
-    - timeout: 60s
+    - timeout: 20s
       then:
-        - logger.log: idle timeout 2
-        - lvgl.pause:
-        # TODO: does not work on 'host'
-        # - light.turn_off:
-        #     id: backlight
-        #     transition_length: 5s
+        - logger.log: idle timeout medium, decreasing brightness
+        - globals.set:
+            id: backlight_percent
+            value: '25'
+
+    # comment out if you want display to be always on, or set proper value
+    - timeout: 30s
+      then:
+        - logger.log: idle timeout long, decreasing brightness
+        - globals.set:
+            id: backlight_percent
+            value: !lambda return id(backlight_percent_minimum);
 
   pages:
     - id: page_pmma_a
@@ -555,3 +607,21 @@ lvgl:
             bg_opa: TRANSP
             y: +90
             text: "INIT"
+
+script:
+  - id: display_reprocess
+    then:
+      - logger.log:
+          format: "display_reprocess triggered: backlight_percent=%d"
+          args: [ 'id(backlight_percent)' ]
+      - if:
+          condition:
+            lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+          then:
+            - logger.log: lvgl paused
+            - lvgl.pause: # stop updating display if brightness is off
+
+interval:
+  - interval: 10s
+    then:
+      - script.execute: display_reprocess

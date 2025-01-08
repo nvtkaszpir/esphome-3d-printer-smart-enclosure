@@ -7,8 +7,6 @@ This is a 3d printer enclosure controlling system using esp32 devices using
 
 ## Known limitations
 
-- TODO: nice to have a dimming display on host - via dumb light or template/logging,
-  real device can do it anyway
 - for smooth transitions esp32 device with PSRAM recommended,
   notice that esp8266 was not tested at all and probably will never be
 - you may need two boards, one for the display and another for other controls due to pinout limits... and convenience
@@ -29,7 +27,8 @@ Phase 1:
 
 ### General
 
-- TODO: migrate to LVGL swiping widgets
+- TODO: migrate to LVGL swiping widgets, easier to navigate multiple pages,
+  because right now you need to wait for timeout to default page or click next next next
 
 - TODO: LCD backlight based on ambient light and printer printing status? would require light sensor
   or activate via ToF is someone is near the printer, can be issue with the doors of the cabinet, though

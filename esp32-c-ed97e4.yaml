@@ -125,29 +125,48 @@ touchscreen:
   id: touch_surface
   interrupt_pin: GPIO16
   reset_pin: GPIO15
-
-  # TODO: fix if doing backlight based on air quality level
+  touch_timeout: 1000ms # prevent touch event flood?
   on_touch:
-    - script.stop: backlight_timer
-    - script.execute: backlight_timer
+    - logger.log: display touched
+    - if:
+        condition:
+          lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+        then:
+          - lvgl.page.show: page_pmma_a
+          - lvgl.page.previous: # need to show default page and 'go back' so on release we show next
 
-  # on_release:
-  #   - lvgl.page.next:
+    - globals.set:
+        id: backlight_percent
+        value: '80'
+    - lvgl.resume:
+    - light.turn_on:
+        id: backlight
+        brightness: !lambda return (id(backlight_percent) / 100.0);
 
-#This is the script for turn off the backlight after some seconds of inactivity
+  on_release:
+    - lvgl.page.next:
+
+
 script:
-  id: backlight_timer
-  then:
-    - light.turn_on:
-        id: backlight
-        brightness: 80%
-
-    - delay: 20s
-    - light.turn_on:
-        id: backlight
-        brightness: 40%
-
-    - delay: 30s
-    - light.turn_on:
-        id: backlight
-        brightness: 20%
+  - id: display_reprocess
+    then:
+      - logger.log:
+          format: "display_reprocess triggered: backlight_percent=%d"
+          args: [ 'id(backlight_percent)' ]
+      - if:
+          condition:
+            lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+          then:
+            - logger.log: lvgl paused
+            - lvgl.pause: # stop updating display if brightness is off
+            - light.turn_off:
+                id: backlight
+          else:
+            # notice not to do lvgl.resume otherwise it will never get 'idle'
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda return (id(backlight_percent) / 100.0);
+            # # dumb fallback
+            # - light.turn_on:
+            #     id: backlight
+            #     brightness: 25%

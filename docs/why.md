@@ -14,7 +14,8 @@ but I already had a setup with HomeAssistant/Node-Red and
 esp32 devices all around with ESPHome and thus I did not feel I want custom firmware
 on the device just for air control of the 3d printer enclosure.
 
-- [rudd-o](https://rudd-o.com/linux-and-free-software/making-a-smart-enclosure-for-the-original-prusa-mk4)
+- [Rudd-O blog](https://rudd-o.com/linux-and-free-software/making-a-smart-enclosure-for-the-original-prusa-mk4)
+and related [Rudd-O/prusa-mk4-smart-enclosure](https://github.com/Rudd-O/prusa-mk4-smart-enclosure)
 also did some smart enclosure but it did not fit my needs, but there is a lot of
 great things in there to use.
 
