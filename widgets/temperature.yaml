@@ -1,0 +1,114 @@
+# widgets:
+# `two or more values in the same group of exclusion 'widgets'``
+- obj:
+    id: temperature
+    x: 0
+    y: 0
+    width: 100%
+    height: 100%
+    # bg_color: 0x000000
+    bg_opa: COVER
+    radius: 0
+    pad_all: 0
+    border_width: 0
+    widgets:
+      - meter: # https://esphome.io/components/lvgl/widgets#meter
+          height: 240
+          width: 240
+          align: center
+          text_font: montserrat_14
+          bg_opa: TRANSP
+          text_color: 0x999999
+          border_width: 0
+          pad_all: 8
+
+          scales:
+            # scale for needle
+            - range_from: 100 # scale for needle value /10
+              range_to: 400 # scale for needle value /10
+              angle_range: 270
+              rotation: 135
+              indicators:
+                - line:
+                    id: temperature_needle
+                    width: 4
+                    color: 0xFFB000
+                    r_mod: -20 # shorten the needle by %
+                - tick_style:
+                    start_value: 10
+                    end_value: 15
+                    color_start: 0x2196F3
+                    color_end: 0x2196F3
+                    width: 0
+                    local: true
+
+            # scale for the value labels
+            - range_from: 10 # scale for needle value /10
+              range_to: 40 # scale for needle value /10
+              angle_range: 270
+              rotation: 135
+              ticks:
+                width: 2
+                count: 31
+                length: 10
+                color: 0x999999
+                major:
+                  stride: 5
+                  width: 4
+                  length: 15
+                  color: 0xEEEEEE
+                  label_gap: 16
+              indicators:
+                # blue segment
+                - arc:
+                    color: 0x2196F3
+                    width: 3
+                    start_value: 10
+                    end_value: 15
+                - tick_style:
+                    start_value: 10
+                    end_value: 15
+                    color_start: 0x2196F3
+                    color_end: 0x2196F3
+                    width: 0
+                    local: true
+
+                # red segment
+                - arc:
+                    color: 0xF44336
+                    width: 3
+                    start_value: 30
+                    end_value: 40
+                - tick_style:
+                    start_value: 30
+                    end_value: 40
+                    color_start: 0xF44336
+                    color_end: 0xF44336
+                    width: 0
+                    local: true
+
+      # label at the bottom center
+      - image:
+          src: icon_thermometer
+          align: center
+          image_recolor: 0x999999
+          image_recolor_opa: 100% #opacity defaults to 0% = must set this for recolor to take effect
+          y: +20
+      - label:
+          id: temperature_label
+          text_font: roboto_18
+          align: center
+          # text_color: 0x336699
+          text_color: 0x999999
+          bg_opa: TRANSP
+          y: +60
+          text: "TEMP"
+      # label at the bottom center
+      - label:
+          id: temperature_value
+          text_font: roboto_38
+          align: center
+          text_color: 0x999999
+          bg_opa: TRANSP
+          y: +90
+          text: "INIT"

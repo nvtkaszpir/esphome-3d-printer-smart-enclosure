@@ -1,0 +1,96 @@
+# widgets:
+# need to add obj.widgets: in it so there is no error such as:
+# `two or more values in the same group of exclusion 'widgets'``
+- obj:
+    id: humidity
+    x: 0
+    y: 0
+    width: 100%
+    height: 100%
+    # bg_color: 0x000000
+    bg_opa: COVER
+    radius: 0
+    pad_all: 0
+    border_width: 0
+    widgets:
+      - meter: # https://esphome.io/components/lvgl/widgets#meter
+          height: 240
+          width: 240
+          align: center
+          text_font: montserrat_14
+          bg_opa: TRANSP
+          text_color: 0x999999
+          border_width: 0
+          pad_all: 8
+
+          scales:
+            - range_from: 0
+              range_to: 100
+              angle_range: 270
+              rotation: 135
+              ticks:
+                width: 2
+                count: 21
+                length: 10
+                color: 0x999999
+                major:
+                  stride: 2
+                  width: 4
+                  length: 15
+                  color: 0xEEEEEE
+                  label_gap: 16
+              indicators:
+                - line:
+                    id: humidity_needle
+                    width: 4
+                    color: 0x00ffc3
+                    r_mod: -20 # shorten the needle by %
+
+                # green segment
+                - arc:
+                    color: 0x04ff00
+                    width: 8
+                    start_value: 0
+                    end_value: 30
+                    opa: 60%
+
+                # yellow segment
+                - arc:
+                    color: 0xffae00
+                    width: 8
+                    start_value: 30
+                    end_value: 60
+                    opa: 60%
+
+                # red segment
+                - arc:
+                    color: 0xff0000
+                    width: 8
+                    start_value: 60
+                    end_value: 100
+                    opa: 70%
+
+      # label at the bottom center
+      - image:
+          src: icon_humidity
+          align: center
+          image_recolor: 0x999999
+          image_recolor_opa: 100% #opacity defaults to 0% = must set this for recolor to take effect
+          y: +20
+      - label:
+          id: humidity_label
+          text_font: roboto_18
+          align: center
+          text_color: 0x999999
+          bg_opa: TRANSP
+          y: +60
+          text: "HUMIDITY"
+      # label at the bottom center
+      - label:
+          id: humidity_value
+          text_font: roboto_38
+          align: center
+          text_color: 0x999999
+          bg_opa: TRANSP
+          y: +90
+          text: "INIT"

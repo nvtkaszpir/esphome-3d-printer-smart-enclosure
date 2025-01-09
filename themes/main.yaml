@@ -1,0 +1,42 @@
+obj:
+  bg_color: 0x000000
+  text_color: 0xFFFFFF
+  border_width: 0
+
+button:
+  bg_color: 0x5A6173
+  border_width: 0
+  border_color: 0x00B6FF
+  radius: 20
+  shadow_width: 0
+
+bar:
+  bg_color: 0x111111
+  text_color: 0xFFFFFF
+
+dropdown:
+  bg_color: 0x5A6173
+  text_color: 0xFFFFFF
+  border_color: 0x00B6FF
+  border_width: 1
+  shadow_width: 0
+
+# switch:
+#   bg_color: 0x000000
+
+switch:
+  bg_color: 0x111111
+  # does not work, makes the switch 'blue' anyway
+  # bg_grad_color: 0xb0b0b0
+  # bg_grad_dir: VER
+  # bg_opa: COVER
+  # checked:
+  #   bg_color: 0x1d5f96
+  #   bg_grad_color: 0x03324A
+  #   bg_grad_dir: VER
+  #   bg_opa: COVER
+  # knob:
+  #   bg_color: 0xFFFFFF
+  #   bg_grad_color: 0xC0C0C0
+  #   bg_grad_dir: VER
+  #   bg_opa: COVER
