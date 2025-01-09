@@ -22,4 +22,7 @@ great things in there to use.
 - [tuct/smart-control-for-prusa-enclosure](https://github.com/tuct/smart-control-for-prusa-enclosure/)
 also looks interesting as a source of automation etc.
 
+- [RyanEwen/esphome-lvgl/](https://github.com/RyanEwen/esphome-lvgl/tree/main)
+awesome esphome includes, must see.
+
 All in all this project was born.
