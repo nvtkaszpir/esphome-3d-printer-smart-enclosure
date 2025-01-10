@@ -43,3 +43,7 @@ switch:
   #   bg_grad_color: 0xC0C0C0
   #   bg_grad_dir: VER
   #   bg_opa: COVER
+
+tileview:
+  bg_color: 0x000000
+  text_color: 0xFFFFFF
