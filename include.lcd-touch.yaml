@@ -357,6 +357,7 @@ lvgl:
 
 
   pages:
+    # TODO: add dummy page and hide it if not connected to HA, to avoid 'init' or non-working keys
     - id: page_pmma_a
       widgets:
 

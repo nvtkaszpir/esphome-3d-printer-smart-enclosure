@@ -2,11 +2,14 @@ obj:
   bg_color: 0x000000
   text_color: 0xFFFFFF
   border_width: 0
+  # border_width: 1
+  # border_color: 0x0077b3
 
 button:
   bg_color: 0x5A6173
-  border_width: 0
-  border_color: 0x00B6FF
+  border_width: 1
+  # border_color: 0x00B6FF
+  border_color: 0xAAAAAA
   radius: 20
   shadow_width: 0
 
