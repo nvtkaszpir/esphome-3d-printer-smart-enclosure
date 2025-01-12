@@ -6,3 +6,6 @@ host: ## run on the laptop via host.yaml
 
 esp32-c-ed97e4: ## upload to esp32-c-ed97e4
 	esphome run esp32-c-ed97e4.yaml
+
+wrover: ## upload to esp32-wrover-044f30
+	esphome run esp32-wrover-044f30.lcd.yaml

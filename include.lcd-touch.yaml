@@ -5,7 +5,7 @@
 substitutions:
   device_name: esp32-host
   domain: !secret DOMAIN
-
+  lvgl_buffer_size: 25%
 
 # Enable logging
 logger:
@@ -66,6 +66,19 @@ binary_sensor:
             checked: !lambda return x;
 
 sensor:
+
+  - platform: debug
+    free:
+      name: "heap_free"
+    # fragmentation:
+    #   name: "heap_fragmentation"
+    # block:
+    #   name: "heap_max_block"
+    loop_time:
+      name: "loop_time"
+    psram:
+      name: "free_psram"
+
   - platform: uptime
     id: socket_uptime
     name: "Uptime"
@@ -329,7 +342,7 @@ lvgl:
   color_depth: 16
   theme: !include themes/main.yaml
   align: center
-  buffer_size: 25% # set it low for non PSRAM devices, ushc as 25%
+  buffer_size: ${lvgl_buffer_size} # set it low for non PSRAM devices, ushc as 25%
 
   on_idle:
     # switch to specific page after 10s of inactivity
@@ -364,33 +377,34 @@ lvgl:
         - tileview:
             id: my_tileview
             tiles:
-              - id: tile_pmma_a
+
+              - id: tile_lights
                 row: 0
                 column: 0
+                dir: HOR
+                widgets:
+                  <<: !include { file: widgets/lights.yaml }
+
+              - id: tile_pmma_a
+                row: 0
+                column: 1
                 dir: HOR
                 widgets:
                   <<: !include { file: widgets/pmma.yaml }
 
               - id: tile_temp
                 row: 0
-                column: 1
+                column: 2
                 dir: HOR
                 widgets:
                   <<: !include { file: widgets/temperature.yaml }
 
               - id: tile_humidity
                 row: 0
-                column: 2
-                dir: HOR
-                widgets:
-                  <<: !include { file: widgets/humidity.yaml }
-
-              - id: tile_lights
-                row: 0
                 column: 3
                 dir: HOR
                 widgets:
-                  <<: !include { file: widgets/lights.yaml }
+                  <<: !include { file: widgets/humidity.yaml }
 
 script:
   - id: display_reprocess

@@ -1,0 +1,219 @@
+# LCD zamiast kamery
+# esptool.py v4.7.0
+# Serial port /dev/ttyUSB0
+# Connecting....
+# Chip is ESP32-D0WDQ6 (revision v1.0)
+# Features: WiFi, BT, Dual Core, 240MHz, VRef calibration in efuse, Coding Scheme None
+# Crystal is 40MHz
+# MAC: 40:22:d8:04:4f:30
+# Uploading stub...
+# Running stub...
+# Stub running...
+# Changing baud rate to 460800
+# Changed.
+# Configuring flash size...
+# Auto-detected Flash size: 4MB
+# Flash will be erased from 0x00010000 to 0x00103fff...
+substitutions:
+  device_name: esp32-wrover-044f30
+  domain: !secret DOMAIN
+  lvgl_buffer_size: 100%
+
+<<: !include include.lcd-touch.yaml
+
+esphome:
+  name: "esp32-wrover-044f30"
+  # platformio_options:
+  #   build_flags: "-DBOARD_HAS_PSRAM"
+
+esp32:
+  #board: esp32dev
+  board: esp-wrover-kit # has PSRAM
+  # framework:
+  #   type: arduino
+  framework:
+    type: esp-idf
+    version: recommended
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+
+# Enable logging
+logger:
+  # level: ERROR
+  logs:
+    component: ERROR
+
+debug:
+  update_interval: 5s
+
+# generic services
+time:
+  - platform: sntp
+    timezone: "Europe/Warsaw"
+    id: sntp_time
+    servers:
+      - bagno
+      - bagno.${domain}
+      - pl.pool.ntp.org
+
+web_server:
+  port: 80
+
+# Enable Home Assistant API
+api:
+  password: ""
+  # reboot_timeout: 0s # disable reboot if not connected to HA
+
+ota:
+  platform: esphome
+  password: ""
+
+wifi:
+  ssid: !secret WIFI_SSID
+  password: !secret WIFI_PASSWORD
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${device_name}"
+    password: !secret WIFI_AP_PASSWORD
+
+captive_portal:
+
+
+button:
+  - platform: restart
+    name: "${device_name} Restart"
+
+
+# web ui info
+text_sensor:
+  - platform: version
+    name: "ESPHome Version ${device_name}"
+
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address ${device_name}"
+    ssid:
+      name: "Connected SSID ${device_name}"
+    bssid:
+      name: "Connected BSSID ${device_name}"
+    mac_address:
+      name: "Mac Wifi Address ${device_name}"
+
+  - platform: version
+    name: "ESPHome Version ${device_name}"
+
+
+i2c:
+  sda: GPIO21 # TP_SDA
+  scl: GPIO22 # TP_SCL
+
+spi:
+  clk_pin: GPIO18 # SCLK
+  mosi_pin: GPIO23 # MOSI
+  miso_pin: GPIO19 # MISO
+
+output:
+  - id: lcd_brightness
+    platform: ledc
+    pin: GPIO5 # LCD_BL
+
+light:
+  - platform: monochromatic
+    id: backlight
+    name: "LCD backlight"
+    output: lcd_brightness
+    initial_state:
+      state: on
+      brightness: 60%
+    restore_mode: ALWAYS_ON
+
+display:
+  - platform: ili9xxx
+    model: GC9A01A
+    auto_clear_enabled: false
+    update_interval: never
+    id: touch_display
+    cs_pin: GPIO26 # LCD_CS
+    dc_pin: GPIO25 # LCD_DC
+    reset_pin: GPIO4 # LCD_RST
+    invert_colors: true
+    dimensions:
+      height: 240
+      width: 240
+    # show_test_card: true
+    data_rate: 80MHz
+    spi_mode: MODE3
+
+touchscreen:
+  platform: cst816
+  id: touch_surface
+  interrupt_pin: GPIO34 # TP_INT
+  reset_pin: GPIO027 # TP_RST
+  touch_timeout: 1000ms # prevent touch event flood?
+  # on_touch:
+  #   - lambda: |-
+  #         ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+  #             touch.x,
+  #             touch.y,
+  #             touch.x_raw,
+  #             touch.y_raw
+  #             );
+  # on_release:
+  #   - logger.log: display released
+
+  on_touch:
+    # - logger.log: display touched
+    - if:
+        condition: lvgl.is_paused
+        then:
+          - lvgl.resume:
+    - if:
+        condition:
+          lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+        then:
+          - lvgl.page.show: page_pmma_a
+          - lvgl.page.previous: # need to show default page and 'go back' so on release we show next
+
+    - globals.set:
+        id: backlight_percent
+        value: '80'
+    - light.turn_on:
+        id: backlight
+        brightness: !lambda return (id(backlight_percent) / 100.0);
+
+  on_release:
+    - lvgl.page.next:
+
+script:
+  - id: display_reprocess
+    then:
+      - logger.log:
+          format: "display_reprocess triggered: backlight_percent=%d"
+          args: [ 'id(backlight_percent)' ]
+      - if:
+          condition:
+            lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+          then:
+            - logger.log: lvgl paused
+            - lvgl.pause: # stop updating display if brightness is off
+            - light.turn_off:
+                id: backlight
+          else:
+            # notice not to do lvgl.resume otherwise it will never get 'idle'
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda return (id(backlight_percent) / 100.0);
+            # # dumb fallback
+            # - light.turn_on:
+            #     id: backlight
+            #     brightness: 25%
