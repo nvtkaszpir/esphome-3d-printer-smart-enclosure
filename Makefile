@@ -9,3 +9,7 @@ esp32-c-ed97e4: ## upload to esp32-c-ed97e4
 
 wrover: ## upload to esp32-wrover-044f30
 	esphome run esp32-wrover-044f30.lcd.yaml
+
+devices: ## upload to devices
+	esphome run --no-logs esp32-c-ed97e4.yaml
+	esphome run --no-logs esp32-wrover-044f30.lcd.yaml

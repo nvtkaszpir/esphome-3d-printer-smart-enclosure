@@ -7,6 +7,7 @@ substitutions:
   domain: !secret DOMAIN
   lvgl_buffer_size: 25%
 
+
 # Enable logging
 logger:
   # baud_rate: 0 # disable sending to first uart device
@@ -66,18 +67,6 @@ binary_sensor:
             checked: !lambda return x;
 
 sensor:
-
-  - platform: debug
-    free:
-      name: "heap_free"
-    # fragmentation:
-    #   name: "heap_fragmentation"
-    # block:
-    #   name: "heap_max_block"
-    loop_time:
-      name: "loop_time"
-    psram:
-      name: "free_psram"
 
   - platform: uptime
     id: socket_uptime

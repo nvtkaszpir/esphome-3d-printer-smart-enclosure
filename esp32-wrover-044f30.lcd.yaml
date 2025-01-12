@@ -29,11 +29,11 @@ esphome:
 esp32:
   #board: esp32dev
   board: esp-wrover-kit # has PSRAM
-  # framework:
-  #   type: arduino
   framework:
-    type: esp-idf
-    version: recommended
+    type: arduino
+  # framework:
+  #   type: esp-idf
+  #   version: recommended
 
 psram:
   mode: octal
@@ -69,7 +69,7 @@ api:
 
 ota:
   platform: esphome
-  password: ""
+  password: "dai3ahGha7phu8ChoQuohQue"
 
 wifi:
   ssid: !secret WIFI_SSID
@@ -120,7 +120,7 @@ i2c:
 spi:
   clk_pin: GPIO18 # SCLK
   mosi_pin: GPIO23 # MOSI
-  miso_pin: GPIO19 # MISO
+  # miso_pin: GPIO19 # MISO
 
 output:
   - id: lcd_brightness

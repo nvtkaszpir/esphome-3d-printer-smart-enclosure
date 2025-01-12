@@ -4,6 +4,7 @@
 substitutions:
   device_name: esp32-c-ed97e4
   domain: !secret DOMAIN
+  lvgl_buffer_size: 25%
 
 <<: !include include.lcd-touch.yaml
 
@@ -85,7 +86,7 @@ i2c:
 spi:
   clk_pin: GPIO18
   mosi_pin: GPIO23 # TX
-  miso_pin: GPIO19 # RX
+  # miso_pin: GPIO19 # RX
 
 # TODO: fix pinout to avoid esphome warning about using strap pins, for now it works
 output:
