@@ -19,7 +19,42 @@ logger:
 api:
   password: ""
   # reboot_timeout: 0s # disable reboot if not connected to HA
-
+  on_client_connected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - globals.set:
+              id: backlight_percent
+              value: '80'
+          - if:
+              condition: lvgl.is_paused
+              then:
+                - lvgl.resume:
+          - lvgl.tileview.select:
+              id: my_tileview
+              tile_id: tile_status
+          - lvgl.label.update:
+              id: status_ha_api_label
+              text: 'HA Connected'
+  on_client_disconnected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - globals.set:
+              id: backlight_percent
+              value: '80'
+          - if:
+              condition: lvgl.is_paused
+              then:
+                - lvgl.resume:
+          - lvgl.label.update:
+              id: status_ha_api_label
+              text: 'HA Disconnected'
+          - lvgl.tileview.select:
+              id: my_tileview
+              tile_id: tile_status
 
 text_sensor:
   - platform: version
@@ -367,30 +402,37 @@ lvgl:
             id: my_tileview
             tiles:
 
-              - id: tile_lights
+              - id: tile_status
                 row: 0
                 column: 0
+                dir: HOR
+                widgets:
+                  <<: !include { file: widgets/status.yaml }
+
+              - id: tile_lights
+                row: 0
+                column: 1
                 dir: HOR
                 widgets:
                   <<: !include { file: widgets/lights.yaml }
 
               - id: tile_pmma_a
                 row: 0
-                column: 1
+                column: 2
                 dir: HOR
                 widgets:
                   <<: !include { file: widgets/pmma.yaml }
 
               - id: tile_temp
                 row: 0
-                column: 2
+                column: 3
                 dir: HOR
                 widgets:
                   <<: !include { file: widgets/temperature.yaml }
 
               - id: tile_humidity
                 row: 0
-                column: 3
+                column: 4
                 dir: HOR
                 widgets:
                   <<: !include { file: widgets/humidity.yaml }

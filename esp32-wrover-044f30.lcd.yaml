@@ -62,10 +62,6 @@ time:
 web_server:
   port: 80
 
-# Enable Home Assistant API
-api:
-  password: ""
-  # reboot_timeout: 0s # disable reboot if not connected to HA
 
 ota:
   platform: esphome
