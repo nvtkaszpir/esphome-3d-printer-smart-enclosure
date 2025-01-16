@@ -126,8 +126,13 @@ touchscreen:
   on_touch:
     - logger.log: display touched
     - if:
+        condition: lvgl.is_paused
+        then:
+          - lvgl.resume:
+          - lvgl.widget.redraw:
+    - if:
         condition:
-          lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+          lambda: 'return id(backlight_percent) == 0;'
         then:
           - lvgl.page.show: page_pmma_a
           - lvgl.page.previous: # need to show default page and 'go back' so on release we show next
@@ -135,7 +140,6 @@ touchscreen:
     - globals.set:
         id: backlight_percent
         value: '80'
-    - lvgl.resume:
     - light.turn_on:
         id: backlight
         brightness: !lambda return (id(backlight_percent) / 100.0);
@@ -152,17 +156,21 @@ script:
           args: [ 'id(backlight_percent)' ]
       - if:
           condition:
-            lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+            lambda: 'return id(backlight_percent) == 0;'
           then:
             - logger.log: lvgl paused
             - lvgl.pause: # stop updating display if brightness is off
             - light.turn_off:
                 id: backlight
           else:
-            # notice not to do lvgl.resume otherwise it will never get 'idle'
             - light.turn_on:
                 id: backlight
                 brightness: !lambda return (id(backlight_percent) / 100.0);
+            - if:
+                condition: lvgl.is_paused
+                then:
+                  - lvgl.resume:
+                  - lvgl.widget.redraw:
             # # dumb fallback
             # - light.turn_on:
             #     id: backlight

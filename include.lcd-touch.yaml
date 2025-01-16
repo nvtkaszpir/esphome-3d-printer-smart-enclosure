@@ -445,10 +445,17 @@ script:
           args: [ 'id(backlight_percent)' ]
       - if:
           condition:
-            lambda: 'return id(backlight_percent) == id(backlight_percent_minimum);'
+            lambda: 'return id(backlight_percent) == 0;'
           then:
             - logger.log: lvgl paused
             - lvgl.pause: # stop updating display if brightness is off
+          else:
+            - if:
+                condition: lvgl.is_paused
+                then:
+                  - lvgl.resume:
+                  - lvgl.widget.redraw:
+
 
 interval:
   - interval: 10s
