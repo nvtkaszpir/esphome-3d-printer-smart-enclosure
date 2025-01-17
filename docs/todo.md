@@ -25,6 +25,19 @@
 - TODO: other air quality sensors - for detecting gases when printing other materials such as ABS/ASA (not tested)
   and calculate it based on [this](https://atmotube.com/atmocube-support/indoor-air-quality-index-iaqi)
   or [that](https://airly.org/en/air-quality-index-caqi-and-aqi-methods-of-calculation/)
+  and [this](https://www.breeze-technologies.de/blog/calculating-an-actionable-indoor-air-quality-index/)
+
+  <!-- markdownlint-disable line_length -->
+  ```text
+  Label              | IAQI      | CO2(ppm)    | TVOC(Index)  | NOx(Index) | CH2O(ppm)  | PM1(µg/m3) | PM2.5(µg/m3) | PM10(µg/m3) | CO(ppm)     | O3(ppm)        |
+  ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Good               |   0 - 100 |  400 -  599 |     1 -  199 |    1 - 49  |   0 -   50 |     0 - 14 |      0 - 20  |     0 -  30 |  0   -  1.7 | 0 - 0.025      |
+  Moderate           | 101 - 200 |  600 - 999  |   200 -  660 |   50 - 99  |  51 -  150 |    15 - 34 |     21 - 50  |    31 -  75 |  1.8 -  8.7 | 0.026 - 0.06   |
+  Polluted           | 201 - 300 | 1000 - 1499 |   661 - 1100 |  100 - 299 | 151 -  300 |    35 - 61 |     51 - 90  |    76 - 125 |  8.8 - 10   | 0.061 - 0.075  |
+  Very Polluted      | 301 - 400 | 1500 - 2499 |  1101 - 1651 |  300 - 349 | 301 -  500 |    62 - 95 |     91 - 140 |   126 - 200 | 10.1 - 15   | 0.076 - 0.1    |
+  Severely Polluted  | 401 - 500 | 2500 - 5000 |  1651 - 2000 |  350 - 500 | 501 - 1000 |   96 - 150 |    141 - 200 |   201 - 300 | 15.1 - 30   | 0.101 - 0.3    |
+  ```
+  <!-- markdownlint-enable line_length -->
 
 ## Spool weight sensor
 
