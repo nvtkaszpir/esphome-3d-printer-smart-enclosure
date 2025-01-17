@@ -1,0 +1,25 @@
+# printer power switch
+# msgboxes:
+- id: msgbox_printer_power
+  styles: style_msgbox_printer_power
+  close_button: false
+  title: Printer Power
+  body:
+    text: "Are you sure you want to toggle printer power?"
+  buttons:
+    - id: msgbox_apply
+      text: "Yes"
+      on_click:
+        then:
+          - homeassistant.action:
+              action: switch.toggle
+              data:
+                entity_id: switch.athom_smart_plug_v2_974d71
+
+          - lvgl.widget.hide: msgbox_printer_power
+
+    - id: msgbox_close
+      text: "\uF00D"
+      on_click:
+        then:
+          - lvgl.widget.hide: msgbox_printer_power

@@ -16,7 +16,7 @@
     pad_top: 32
     widgets:
       - button:
-          id: light_warm
+          id: button_light_warm
           width: 80%
           height: 20%
           checkable: true
@@ -31,7 +31,7 @@
                   entity_id: switch.esp32_c_cddf4c_relay_1
 
       - button:
-          id: light_cold
+          id: button_light_cold
           width: 80%
           height: 20%
           checkable: true
@@ -44,3 +44,15 @@
                 action: switch.toggle
                 data:
                   entity_id: switch.esp32_c_cddf4c_relay_2
+
+      - button:
+          id: button_printer_power
+          width: 80%
+          height: 20%
+          checkable: true
+          widgets:
+            - label:
+                align: CENTER
+                text: 'Printer Power'
+          on_click:
+            - lvgl.widget.show: msgbox_printer_power

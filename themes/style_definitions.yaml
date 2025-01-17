@@ -1,0 +1,5 @@
+# style_definitions:
+- id: style_msgbox_printer_power
+  align: CENTER
+  text_color: 0x000000
+  bg_color: 0x808080

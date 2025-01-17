@@ -46,5 +46,8 @@ markdown_extensions:
 nav:
   - About: index.md
   - Why: why.md
+  - Known Limitations: known_limitations.md
   - Architecture: architecture.md
   - Requirements: requirements.md
+  - Features: featuers.md
+  - To Do: todo.md

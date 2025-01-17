@@ -77,6 +77,12 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
+  # keep display on if air quality is above this level
+  - id: backlight_on_if_air_q_above
+    type: int
+    restore_value: no
+    initial_value: '200'
+
 
 # modules
 binary_sensor:
@@ -87,7 +93,7 @@ binary_sensor:
     on_state:
       then:
         lvgl.widget.update:
-          id: light_warm
+          id: button_light_warm
           state:
             checked: !lambda return x;
   - platform: homeassistant
@@ -97,10 +103,20 @@ binary_sensor:
     on_state:
       then:
         lvgl.widget.update:
-          id: light_cold
+          id: button_light_cold
           state:
             checked: !lambda return x;
 
+  - platform: homeassistant
+    id: printer_power
+    entity_id: switch.athom_smart_plug_v2_974d71
+    publish_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: button_printer_power
+          state:
+            checked: !lambda return x;
 sensor:
 
   - platform: uptime
@@ -174,8 +190,6 @@ sensor:
     id: particulate_combination
     type: linear
     name: "Particulate"
-    # TODO: do something more compucationally meaningful?
-    # https://airly.org/en/air-quality-index-caqi-and-aqi-methods-of-calculation/
     sources:
       - source: particulate_1um
         coeffecient: 2.2
@@ -185,6 +199,11 @@ sensor:
         coeffecient: 1.0
 
     on_value:
+      - lvgl.label.update:
+          id: particulate_label_number
+          text:
+            format: "%.0f"
+            args: [ 'id(particulate_combination).state' ]
       - if:
           condition:
             lambda: |-
@@ -365,6 +384,7 @@ lvgl:
   log_level: INFO
   color_depth: 16
   theme: !include themes/main.yaml
+  style_definitions: !include themes/style_definitions.yaml
   align: center
   buffer_size: ${lvgl_buffer_size} # set it low for non PSRAM devices, ushc as 25%
 
@@ -388,10 +408,18 @@ lvgl:
     - timeout: 30s
       then:
         - logger.log: idle timeout long, decreasing brightness
-        - globals.set:
-            id: backlight_percent
-            value: !lambda return id(backlight_percent_minimum);
+        - if:
+            condition:
+              lambda: 'return id(particulate_combination).state < id(backlight_on_if_air_q_above);'
+            then:
+              # air quaity is very good, decrease background light to the minimum value
+              - globals.set:
+                  id: backlight_percent
+                  value: !lambda return id(backlight_percent_minimum);
 
+
+  msgboxes:
+    <<: !include { file: widgets/msgboxes.yaml }
 
   pages:
     # TODO: add dummy page and hide it if not connected to HA, to avoid 'init' or non-working keys
@@ -409,12 +437,12 @@ lvgl:
                 widgets:
                   <<: !include { file: widgets/status.yaml }
 
-              - id: tile_lights
+              - id: tile_buttons
                 row: 0
                 column: 1
                 dir: HOR
                 widgets:
-                  <<: !include { file: widgets/lights.yaml }
+                  <<: !include { file: widgets/buttons.yaml }
 
               - id: tile_pmma_a
                 row: 0
@@ -461,3 +489,5 @@ interval:
   - interval: 10s
     then:
       - script.execute: display_reprocess
+
+# TODO: air filtration trigger only if the printer is printing (avoid air filtering when cooking :D )
