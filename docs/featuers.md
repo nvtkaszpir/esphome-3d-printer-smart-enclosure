@@ -31,3 +31,5 @@ List of already implemented features:
 - printer power control, use messagebox for confirmation
 
   ![logo](./static/printer_power-fs8.png){: style="height:250px;width:250px;"}
+
+- generate git version and bake it into the first tile, easier to track different devices

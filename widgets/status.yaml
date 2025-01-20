@@ -23,3 +23,12 @@
                 id: status_ha_api_label
                 align: CENTER
                 text: 'HA Status Unknown'
+      - button:
+          id: button_git_version
+          width: 80%
+          checkable: false
+          widgets:
+            - label:
+                id: label_git_version
+                align: CENTER
+                text: !include ../.git_version

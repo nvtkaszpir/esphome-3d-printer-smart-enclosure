@@ -125,6 +125,13 @@ touchscreen:
   touch_timeout: 1000ms # prevent touch event flood?
   on_touch:
     - logger.log: display touched
+    - lambda: |-
+          ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+              touch.x,
+              touch.y,
+              touch.x_raw,
+              touch.y_raw
+              );
     - if:
         condition: lvgl.is_paused
         then:

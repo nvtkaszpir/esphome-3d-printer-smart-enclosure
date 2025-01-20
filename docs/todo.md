@@ -2,6 +2,7 @@
 
 ## General
 
+- TODO: if air quality gets worse and backlight is on, then it is not off on idle , need to touch screen
 - TODO: use esphome packages and substitutions, everything is hardcoded now and some overrides are dumb
 - TODO: show print progress bar overlay?
 

@@ -31,6 +31,7 @@ api:
               condition: lvgl.is_paused
               then:
                 - lvgl.resume:
+                - lvgl.widget.redraw:
           - lvgl.tileview.select:
               id: my_tileview
               tile_id: tile_status
@@ -49,6 +50,7 @@ api:
               condition: lvgl.is_paused
               then:
                 - lvgl.resume:
+                - lvgl.widget.redraw:
           - lvgl.label.update:
               id: status_ha_api_label
               text: 'HA Disconnected'
@@ -422,7 +424,6 @@ lvgl:
     <<: !include { file: widgets/msgboxes.yaml }
 
   pages:
-    # TODO: add dummy page and hide it if not connected to HA, to avoid 'init' or non-working keys
     - id: page_pmma_a
       widgets:
 

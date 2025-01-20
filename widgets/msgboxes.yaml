@@ -17,9 +17,17 @@
                 entity_id: switch.athom_smart_plug_v2_974d71
 
           - lvgl.widget.hide: msgbox_printer_power
+          - lvgl.widget.update:
+              id: button_printer_power
+              state:
+                checked: !lambda return x;
 
     - id: msgbox_close
       text: "\uF00D"
       on_click:
         then:
           - lvgl.widget.hide: msgbox_printer_power
+          - lvgl.widget.update:
+              id: button_printer_power
+              state:
+                checked: !lambda return x;
