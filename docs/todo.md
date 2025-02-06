@@ -5,7 +5,10 @@
 - TODO: if air quality gets worse and backlight is on, then it is not off on idle , need to touch screen
 - TODO: use esphome packages and substitutions, everything is hardcoded now and some overrides are dumb
 - TODO: show print progress bar overlay?
+- TODO: show ETA for air cleanup, how to calculate it?
 
+- BUG: sometimes display is always on and needs to be touched to allow it to turn off to 0
+  add global value to check the screen idle and last time it was on/off?
 - TODO: LCD backlight based on ambient light and printer printing status? would require light sensor
   or activate via ToF is someone is near the printer, can be issue with the doors of the cabinet, though
 

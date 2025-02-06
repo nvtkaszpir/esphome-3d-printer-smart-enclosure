@@ -398,6 +398,7 @@ lvgl:
         - lvgl.tileview.select:
             id: my_tileview
             tile_id: tile_pmma_a
+            animated: true
 
     - timeout: 20s
       then:

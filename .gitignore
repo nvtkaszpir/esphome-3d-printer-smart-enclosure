@@ -4,3 +4,4 @@
 /.esphome/
 /secrets.yaml
 .notes.md
+.git_version
