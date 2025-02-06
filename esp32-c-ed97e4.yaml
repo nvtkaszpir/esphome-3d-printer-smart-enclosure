@@ -76,19 +76,19 @@ button:
     name: "${device_name} Restart"
 
 i2c:
-  sda: GPIO21
-  scl: GPIO22
+  sda: GPIO21 # TP_SDA
+  scl: GPIO22 # TP_SCL
 
 spi:
-  clk_pin: GPIO18
-  mosi_pin: GPIO23 # TX
-  # miso_pin: GPIO19 # RX
+  clk_pin: GPIO18 # LCD_CLK
+  mosi_pin: GPIO23 # LCD_DIN
+  # miso_pin: GPIO19 # RX, do not connect to anything
 
 # TODO: fix pinout to avoid esphome warning about using strap pins, for now it works
 output:
   - id: lcd_brightness
     platform: ledc
-    pin: GPIO17
+    pin: GPIO17 # LCD_BL
 
 light:
   - platform: monochromatic
@@ -107,31 +107,34 @@ display:
     auto_clear_enabled: false
     update_interval: never
     id: touch_display
-    cs_pin: GPIO5
-    dc_pin: GPIO2
-    reset_pin: GPIO4
+    cs_pin: GPIO5 # LCD_CS
+    dc_pin: GPIO2 # LCD_DC
+    reset_pin: GPIO4 # LCD_RST
     invert_colors: true
     dimensions:
-      height: 320 # 320 works, 300 trimmed on top
+      height: 280
       width: 240
-    #show_test_card: true
+      offset_height: 20
+    show_test_card: true
     data_rate: 80MHz
 
 touchscreen:
   platform: cst816
   id: touch_surface
-  interrupt_pin: GPIO16
-  reset_pin: GPIO15
+  interrupt_pin: GPIO16 # TP_IRQ
+  reset_pin: GPIO15 # TP_RST
   touch_timeout: 1000ms # prevent touch event flood?
-  on_touch:
-    - logger.log: display touched
-    - lambda: |-
-          ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-              touch.x,
-              touch.y,
-              touch.x_raw,
-              touch.y_raw
-              );
+  # on_touch:
+    # - logger.log: display touched
+    # - lambda: |-
+    #       ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+    #           touch.x,
+    #           touch.y,
+    #           touch.x_raw,
+    #           touch.y_raw
+    #           );
+  on_release:
+
     - if:
         condition: lvgl.is_paused
         then:
@@ -150,9 +153,6 @@ touchscreen:
     - light.turn_on:
         id: backlight
         brightness: !lambda return (id(backlight_percent) / 100.0);
-
-  on_release:
-    - lvgl.page.next:
 
 
 script:

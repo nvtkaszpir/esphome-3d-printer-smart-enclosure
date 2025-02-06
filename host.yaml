@@ -20,5 +20,5 @@ display:
   - platform: sdl
     auto_clear_enabled: false # required fo sdl
     dimensions:
-      height: 320 # 320 works, 300 trimmed on top
+      height: 280
       width: 240
