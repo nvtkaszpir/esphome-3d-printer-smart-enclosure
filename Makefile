@@ -7,9 +7,7 @@ docs:
 
 .PHONY: git_version
 git_version: ## generate git version string
-	echo -n "\"Build: " >.git_version
-	git describe --match=NeVeRmAtCh --always --dirty >> .git_version
-	echo "\"" >> .git_version
+	echo -n "\"Build: $$(git describe --match=NeVeRmAtCh --always --dirty)\"" >.git_version
 
 host: git_version ## run on the laptop via host.yaml
 	esphome run host.yaml
