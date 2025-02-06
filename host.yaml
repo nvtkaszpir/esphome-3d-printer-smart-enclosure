@@ -18,7 +18,7 @@ host:
 
 display:
   - platform: sdl
-    auto_clear_enabled: false # required fo sdl
+    auto_clear_enabled: false # required for sdl
     dimensions:
       height: 280
       width: 240

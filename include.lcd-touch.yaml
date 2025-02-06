@@ -38,6 +38,12 @@ api:
           - lvgl.label.update:
               id: status_ha_api_label
               text: 'HA Connected'
+          - lvgl.widget.update:
+              id: status_ha_api_button
+              styles: style_ha_status_connected
+              state:
+                checked: true
+
   on_client_disconnected:
     - if:
         condition:
@@ -57,6 +63,11 @@ api:
           - lvgl.tileview.select:
               id: my_tileview
               tile_id: tile_status
+          - lvgl.widget.update:
+              id: status_ha_api_button
+              styles: style_ha_status_disconnected
+              state:
+                checked: false
 
 text_sensor:
   - platform: version

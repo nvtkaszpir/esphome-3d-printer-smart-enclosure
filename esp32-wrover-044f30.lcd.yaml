@@ -23,17 +23,11 @@ substitutions:
 
 esphome:
   name: "esp32-wrover-044f30"
-  # platformio_options:
-  #   build_flags: "-DBOARD_HAS_PSRAM"
 
 esp32:
-  #board: esp32dev
   board: esp-wrover-kit # has PSRAM
   framework:
     type: arduino
-  # framework:
-  #   type: esp-idf
-  #   version: recommended
 
 psram:
   mode: octal
@@ -116,7 +110,7 @@ i2c:
 spi:
   clk_pin: GPIO18 # SCLK
   mosi_pin: GPIO23 # MOSI
-  # miso_pin: GPIO19 # MISO
+  # miso_pin: GPIO19 # MISO do not connect to anything
 
 output:
   - id: lcd_brightness
@@ -156,29 +150,13 @@ touchscreen:
   interrupt_pin: GPIO34 # TP_INT
   reset_pin: GPIO027 # TP_RST
   touch_timeout: 1000ms # prevent touch event flood?
-  # on_touch:
-    # - logger.log: display touched
-    # - lambda: |-
-    #       ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-    #           touch.x,
-    #           touch.y,
-    #           touch.x_raw,
-    #           touch.y_raw
-    #           );
-  on_release:
 
+  on_release:
     - if:
         condition: lvgl.is_paused
         then:
           - lvgl.resume:
           - lvgl.widget.redraw:
-    - if:
-        condition:
-          lambda: 'return id(backlight_percent) == 0;'
-        then:
-          - lvgl.page.show: page_pmma_a
-          - lvgl.page.previous: # need to show default page and 'go back' so on release we show next
-
     - globals.set:
         id: backlight_percent
         value: '80'
@@ -209,8 +187,3 @@ script:
                 then:
                   - lvgl.resume:
                   - lvgl.widget.redraw:
-
-            # # dumb fallback
-            # - light.turn_on:
-            #     id: backlight
-            #     brightness: 25%

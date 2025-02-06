@@ -82,7 +82,7 @@ i2c:
 spi:
   clk_pin: GPIO18 # LCD_CLK
   mosi_pin: GPIO23 # LCD_DIN
-  # miso_pin: GPIO19 # RX, do not connect to anything
+  # miso_pin: GPIO19 # MISO, do not connect to anything
 
 # TODO: fix pinout to avoid esphome warning about using strap pins, for now it works
 output:
@@ -124,29 +124,13 @@ touchscreen:
   interrupt_pin: GPIO16 # TP_IRQ
   reset_pin: GPIO15 # TP_RST
   touch_timeout: 1000ms # prevent touch event flood?
-  # on_touch:
-    # - logger.log: display touched
-    # - lambda: |-
-    #       ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-    #           touch.x,
-    #           touch.y,
-    #           touch.x_raw,
-    #           touch.y_raw
-    #           );
-  on_release:
 
+  on_release:
     - if:
         condition: lvgl.is_paused
         then:
           - lvgl.resume:
           - lvgl.widget.redraw:
-    - if:
-        condition:
-          lambda: 'return id(backlight_percent) == 0;'
-        then:
-          - lvgl.page.show: page_pmma_a
-          - lvgl.page.previous: # need to show default page and 'go back' so on release we show next
-
     - globals.set:
         id: backlight_percent
         value: '80'
@@ -178,7 +162,3 @@ script:
                 then:
                   - lvgl.resume:
                   - lvgl.widget.redraw:
-            # # dumb fallback
-            # - light.turn_on:
-            #     id: backlight
-            #     brightness: 25%
