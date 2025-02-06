@@ -157,18 +157,16 @@ touchscreen:
   reset_pin: GPIO027 # TP_RST
   touch_timeout: 1000ms # prevent touch event flood?
   # on_touch:
-  #   - lambda: |-
-  #         ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-  #             touch.x,
-  #             touch.y,
-  #             touch.x_raw,
-  #             touch.y_raw
-  #             );
-  # on_release:
-  #   - logger.log: display released
+    # - logger.log: display touched
+    # - lambda: |-
+    #       ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+    #           touch.x,
+    #           touch.y,
+    #           touch.x_raw,
+    #           touch.y_raw
+    #           );
+  on_release:
 
-  on_touch:
-    - logger.log: display touched
     - if:
         condition: lvgl.is_paused
         then:
@@ -187,9 +185,6 @@ touchscreen:
     - light.turn_on:
         id: backlight
         brightness: !lambda return (id(backlight_percent) / 100.0);
-
-  on_release:
-    - lvgl.page.next:
 
 script:
   - id: display_reprocess
