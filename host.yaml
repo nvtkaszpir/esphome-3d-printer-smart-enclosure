@@ -1,7 +1,4 @@
-# usb-c ed97e4
-# # binary fan esperanza cyclone
-# MAC ..:..:..:ED:97:E4
-# 08:D1:F9 ED97E4
+# ESP32 run on host using SDL, so all software
 substitutions:
   device_name: esp32-host
   domain: !secret DOMAIN
@@ -12,7 +9,7 @@ substitutions:
 esphome:
   name: sdl
 
-# notice that host platform does not need wifi module
+# notice that host platform does not need wifi module, but it needs MAC address
 host:
   mac_address: "06:35:69:ab:f6:79"
 
@@ -22,3 +19,4 @@ display:
     dimensions:
       height: 280
       width: 240
+      # offset_height: 20
