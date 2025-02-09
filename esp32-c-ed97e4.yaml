@@ -84,7 +84,6 @@ spi:
   mosi_pin: GPIO23 # LCD_DIN
   # miso_pin: GPIO19 # MISO, do not connect to anything
 
-# TODO: fix pinout to avoid esphome warning about using strap pins, for now it works
 output:
   - id: lcd_brightness
     platform: ledc
@@ -107,8 +106,8 @@ display:
     auto_clear_enabled: false
     update_interval: never
     id: touch_display
-    cs_pin: GPIO5 # LCD_CS
-    dc_pin: GPIO2 # LCD_DC
+    cs_pin: GPIO19 # LCD_CS
+    dc_pin: GPIO14 # LCD_DC
     reset_pin: GPIO4 # LCD_RST
     invert_colors: true
     dimensions:
@@ -122,7 +121,7 @@ touchscreen:
   platform: cst816
   id: touch_surface
   interrupt_pin: GPIO16 # TP_IRQ
-  reset_pin: GPIO15 # TP_RST
+  reset_pin: GPIO13 # TP_RST
   touch_timeout: 1000ms # prevent touch event flood?
 
   on_release:
